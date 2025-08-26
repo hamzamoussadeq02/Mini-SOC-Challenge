@@ -1,0 +1,34 @@
+name: 1st part
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch secrets from Vault
+        uses: hashicorp/vault-action@v2.4.0
+        with:
+          url: http://192.168.1.27:8200
+          token: ${{ secrets.VAULT_TOKEN }}
+          secrets: |
+            secret/github-ci indexer_admin_password | INDEXER_ADMIN_PASSWORD
+            secret/github-ci wazuh_api_password      | WAZUH_API_PASSWORD
+            secret/github-ci kibana_user_password    | KIBANA_USER_PASSWORD
+
+      - name: Generate indexer certificates
+        run: |
+          docker compose -f docker/generate-indexer-certs.yml run --rm generator
+
+          
+      - name: Build Docker images
+        run: |
+          docker compose -f docker/docker-compose.yml build
