@@ -20,9 +20,10 @@ jobs:
           url: http://192.168.1.27:8200
           token: ${{ secrets.VAULT_TOKEN }}
           secrets: |
-            secret/github-ci indexer_admin_password | INDEXER_ADMIN_PASSWORD
-            secret/github-ci wazuh_api_password      | WAZUH_API_PASSWORD
-            secret/github-ci kibana_user_password    | KIBANA_USER_PASSWORD
+            secret/github-ci indexer_admin_password | INDEXER_ADMIN_PASSWORD ;
+            secret/github-ci wazuh_api_password      | WAZUH_API_PASSWORD ;
+            secret/github-ci kibana_user_password    | KIBANA_USER_PASSWORD ;
+
 
       - name: Generate indexer certificates
         run: |
