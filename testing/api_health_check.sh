@@ -1,7 +1,7 @@
 #!/bin/bash
 
 HOST_IP="localhost"
-TOKEN=$(curl -u wazuh-wui:"$WAZUH_API_PASSWORD"-k -X POST "https://localhost:55000/security/user/authenticate?raw=true")
+TOKEN=$(curl -u wazuh-wui:"$WAZUH_API_PASSWORD" -k -X POST "https://localhost:55000/security/user/authenticate?raw=true")
 HTTP_CODE=$(curl -k -s -o response.json -w "%{http_code}" \
   -X GET "https://$HOST_IP:55000/" \
   -H "Authorization: Bearer $TOKEN")
