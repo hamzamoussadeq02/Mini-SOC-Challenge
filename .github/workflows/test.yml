@@ -71,11 +71,10 @@ jobs:
           exit 1
 
       - name: Cache pip dependencies
-        working-directory: ./testing
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('./testing/requirements.txt') }}
           restore-keys: |
               ${{ runner.os }}-pip-
 
