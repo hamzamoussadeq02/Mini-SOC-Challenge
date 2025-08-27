@@ -39,22 +39,4 @@ jobs:
         run: |
           docker compose up -d
 
- 
-      - name: Wait for Wazuh Dashboard to be ready
-        run: |
-          echo "⏳ Waiting for Wazuh Dashboard to be ready..."
-          retries=30   # wait up to 30 * 5s = 150s (2.5 minutes)
-          count=0
-
-          until curl -sk https://localhost | grep -qv "Wazuh dashboard server is not ready yet"; do
-            count=$((count+1))
-            if [ $count -ge $retries ]; then
-              echo "❌ Dashboard did not become ready in time (timeout)"
-              exit 1
-            fi
-            echo "Dashboard not ready yet, retrying in 5s... ($count/$retries)"
-            sleep 5
-          done
-
-          echo "✅ Wazuh Dashboard is ready!"
 
