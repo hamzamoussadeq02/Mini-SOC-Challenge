@@ -39,4 +39,34 @@ jobs:
         run: |
           docker compose up -d
 
+      - name: Wait for Wazuh Dashboard
+        run: |
+          echo "⏳ Waiting for Wazuh Dashboard at https://localhost/"
+          retries=30
+          for i in $(seq 1 $retries); do
+            body="$(curl -skL https://localhost/ || true)"
+      
+            if echo "$body" | grep -q "502 Bad Gateway"; then
+              echo "❌ Got 502 Bad Gateway ($i/$retries)"
+              sleep 5
+              continue
+            fi
+      
+            if echo "$body" | grep -q "Wazuh dashboard server is not ready yet"; then
+              echo "⏳ Dashboard not ready yet... ($i/$retries)"
+              sleep 5
+              continue
+            fi
+      
+            if [ -n "$body" ]; then
+              echo "✅ Dashboard is ready"
+              exit 0
+            fi
+      
+            echo "Still waiting... ($i/$retries)"
+            sleep 5
+          done
+      
+          echo "❌ Timeout waiting for dashboard"
+          exit 1
 
