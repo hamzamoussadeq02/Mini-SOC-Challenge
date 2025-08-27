@@ -102,9 +102,9 @@ services:
     depends_on:
       - wazuh.dashboard
     volumes:
-      - /home/hamza/wazuh/nginx/nginx.conf:/etc/nginx/nginx.conf
-      - /home/hamza/wazuh/certs/cert.crt:/etc/ssl/certs/cert.crt
-      - /home/hamza/wazuh/certs/private.key:/etc/ssl/certs/private.key
+      - ../nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../certs/cert.crt:/etc/ssl/certs/cert.crt
+      - ../certs/private.key:/etc/ssl/certs/private.key
 
     ports:
       - "80:80"
