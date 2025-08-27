@@ -26,10 +26,12 @@ jobs:
 
 
       - name: Generate indexer certificates
+        working-directory: ./docker
         run: |
-          docker compose -f docker/generate-indexer-certs.yml run --rm generator
+          docker compose -f generate-indexer-certs.yml run --rm generator
 
           
       - name: Build Docker images
+        working-directory: ./docker
         run: |
-          docker compose -f docker/docker-compose.yml up -d
+          docker compose up -d
