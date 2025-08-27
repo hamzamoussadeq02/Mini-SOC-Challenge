@@ -23,6 +23,9 @@ jobs:
             secret/github-ci indexer_admin_password | INDEXER_ADMIN_PASSWORD ;
             secret/github-ci wazuh_api_password      | WAZUH_API_PASSWORD ;
             secret/github-ci kibana_user_password    | KIBANA_USER_PASSWORD ;
+      - name: Render wazuh.yml from template
+        run: |
+          envsubst < docker/config/wazuh_dashboard/wazuh.yml.template > docker/config/wazuh_dashboard/wazuh.yml
 
 
       - name: Generate indexer certificates
