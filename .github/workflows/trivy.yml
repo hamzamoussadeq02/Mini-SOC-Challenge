@@ -28,5 +28,5 @@ jobs:
       - name: Upload Trivy report 
         uses: actions/upload-artifact@v4 
         with: 
-          name: trivy-report-${{ matrix.image_name | replace(':', '_') | replace('/', '_') }} 
+          name: ${{ github.job }}-$(echo ${{ matrix.image }} | tr / _ | tr : _) 
           path: trivy-reports/
