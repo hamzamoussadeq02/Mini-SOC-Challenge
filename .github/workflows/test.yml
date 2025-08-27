@@ -89,6 +89,6 @@ jobs:
       - name: Run Wazuh API healthcheck
         working-directory: ./testing
         run: |
-          chmod +x wazuh_api_healthcheck.sh
-          ./wazuh_api_healthcheck.sh
+          chmod +x api_health_check.sh
+          ./api_health_check.sh
       
