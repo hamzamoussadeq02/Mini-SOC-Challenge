@@ -70,3 +70,21 @@ jobs:
           echo "❌ Timeout waiting for dashboard"
           exit 1
 
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+              ${{ runner.os }}-pip-
+
+      - name: Install dependencies && run seleniuum tests
+        working-directory: ./testing
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip3 install -r requirements.txt
+          python3 dashboard_selenium_test.py
+
+
+      
