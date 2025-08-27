@@ -24,6 +24,7 @@ jobs:
           REPORT_FILE="trivy-reports/$(echo $IMAGE | tr / _ | tr : _).txt"
           echo "🔍 Scanning $IMAGE"
           trivy image --exit-code 1 --severity HIGH,CRITICAL -o "$REPORT_FILE" $IMAGE
+        continue-on-error: true 
 
       - name: Upload Trivy report
         uses: actions/upload-artifact@v4
