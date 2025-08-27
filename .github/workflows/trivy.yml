@@ -1,0 +1,32 @@
+name: Trivy Image Scan
+
+on:
+  workflow_dispatch:
+
+jobs:
+  trivy-scan:
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        image: 
+          - wazuh/wazuh-manager:4.12.0
+          - wazuh/wazuh-indexer:4.12.0
+          - wazuh/wazuh-dashboard:4.12.0
+          - nginx:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy scan
+        run: |
+          mkdir -p trivy-reports
+          IMAGE=${{ matrix.image }}
+          REPORT_FILE="trivy-reports/$(echo $IMAGE | tr / _ | tr : _).txt
+          echo "🔍 Scanning $IMAGE"
+          trivy image --exit-code 1 --severity HIGH,CRITICAL -o "$REPORT_FILE" $IMAGE $IMAGE
+
+      - name: Upload Trivy report
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-report-${{ matrix.image }}
+          path: trivy-reports/
