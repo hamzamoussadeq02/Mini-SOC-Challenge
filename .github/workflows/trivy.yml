@@ -21,9 +21,9 @@ jobs:
         run: |
           mkdir -p trivy-reports
           IMAGE=${{ matrix.image }}
-          REPORT_FILE="trivy-reports/$(echo $IMAGE | tr / _ | tr : _).txt
+          REPORT_FILE="trivy-reports/$(echo $IMAGE | tr / _ | tr : _).txt"
           echo "🔍 Scanning $IMAGE"
-          trivy image --exit-code 1 --severity HIGH,CRITICAL -o "$REPORT_FILE" $IMAGE $IMAGE
+          trivy image --exit-code 1 --severity HIGH,CRITICAL -o "$REPORT_FILE" $IMAGE
 
       - name: Upload Trivy report
         uses: actions/upload-artifact@v4
