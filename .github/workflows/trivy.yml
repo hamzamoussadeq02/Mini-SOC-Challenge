@@ -39,6 +39,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.artifactName }}
-          path: ./testing/trivy-reports/
+          path: ./testing/trivy-reports/${{ env.artifactName }}
 
        
