@@ -29,6 +29,7 @@ jobs:
     steps:
       - name: Make report directory
         working-directory: ./testing
+        run: |
           mkdir trivy-reports
       - name: Run Trivy scan
         working-directory: ./trivy-reports
