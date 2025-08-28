@@ -37,8 +37,8 @@ jobs:
           echo "artifactName=$REPORT_FILE" >> $GITHUB_ENV
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
-          with:
-            name: ${{ env.artifactName }}
-            path: ./testing/trivy-reports/
+        with:
+          name: ${{ env.artifactName }}
+          path: ./testing/trivy-reports/
 
        
