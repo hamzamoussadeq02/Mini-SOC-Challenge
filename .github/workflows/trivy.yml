@@ -32,7 +32,7 @@ jobs:
         run: |
           mkdir trivy-reports
       - name: Run Trivy scan
-        working-directory: ./trivy-reports
+        working-directory: ./testing/trivy-reports
         run: |
           IMAGE=${{ matrix.image }}
           REPORT_FILE="$(echo $IMAGE | tr / _ | tr : _).txt"
