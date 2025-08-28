@@ -28,11 +28,17 @@ jobs:
           - nginx:latest
     steps:
       - name: Run Trivy scan
+        working-directory: ./testing/trivy-reports
         run: |
           IMAGE=${{ matrix.image }}
           REPORT_FILE="$(echo $IMAGE | tr / _ | tr : _).txt"
           echo "🔍 Scanning $IMAGE"
           trivy image --exit-code 0 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE
           echo "artifactName=$REPORT_FILE" >> $GITHUB_ENV
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+          with:
+            name: ${{ env.artifactName }}
+            path: ./testing/trivy-reports/
 
        
