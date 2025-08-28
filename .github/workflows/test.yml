@@ -1,4 +1,4 @@
-name: 1st part
+name: Mini-SOC
 
 on:
   push:
@@ -7,9 +7,49 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
+  
+  build-images:
     runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
+      - name: Build Docker images
+        working-directory: ./docker
+        run: |
+          docker compose build
+
+
+  trivy-scan:
+    runs-on: self-hosted
+    needs: build-images
+    strategy:
+      matrix:
+        image: 
+          - wazuh/wazuh-manager:4.12.0
+          - wazuh/wazuh-indexer:4.12.0
+          - wazuh/wazuh-dashboard:4.12.0
+          - nginx:latest
+    steps:
+      - name: Run Trivy scan
+        working-directory: ./testing/trivy-reports
+        run: |
+          IMAGE=${{ matrix.image }}
+          REPORT_FILE="$(echo $IMAGE | tr / _ | tr : _).txt"
+          echo "🔍 Scanning $IMAGE"
+          trivy image --exit-code 0 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE
+          echo "artifactName=$REPORT_FILE" >> $GITHUB_ENV
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.artifactName }}
+          path: ./testing/trivy-reports/${{ env.artifactName }}
+       
+
+ 
+  deploy-and-test:
+    runs-on: self-hosted
+    needs: trivy-scan
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,18 +63,17 @@ jobs:
             secret/github-ci indexer_admin_password | INDEXER_ADMIN_PASSWORD ;
             secret/github-ci wazuh_api_password      | WAZUH_API_PASSWORD ;
             secret/github-ci kibana_user_password    | KIBANA_USER_PASSWORD ;
+
       - name: Render wazuh.yml from template
         run: |
           envsubst < docker/config/wazuh_dashboard/wazuh.yml.template > docker/config/wazuh_dashboard/wazuh.yml
-
 
       - name: Generate indexer certificates
         working-directory: ./docker
         run: |
           docker compose -f generate-indexer-certs.yml run --rm generator
 
-          
-      - name: Build Docker images
+      - name: Deploy Docker environment
         working-directory: ./docker
         run: |
           docker compose up -d
@@ -45,40 +84,40 @@ jobs:
           retries=30
           for i in $(seq 1 $retries); do
             body="$(curl -skL https://localhost/ || true)"
-      
+
             if echo "$body" | grep -q "502 Bad Gateway"; then
               echo "❌ Got 502 Bad Gateway ($i/$retries)"
               sleep 5
               continue
             fi
-      
+
             if echo "$body" | grep -q "Wazuh dashboard server is not ready yet"; then
               echo "⏳ Dashboard not ready yet... ($i/$retries)"
               sleep 5
               continue
             fi
-      
+
             if [ -n "$body" ]; then
               echo "✅ Dashboard is ready"
               exit 0
             fi
-      
+
             echo "Still waiting... ($i/$retries)"
             sleep 5
           done
-      
+
           echo "❌ Timeout waiting for dashboard"
           exit 1
 
-      - name: Cache pip dependencies
+      - name: Cache Python venv
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('./testing/requirements.txt') }}
+          path: ./testing/venv
+          key: ${{ runner.os }}-venv-${{ hashFiles('./testing/requirements.txt') }}
           restore-keys: |
-              ${{ runner.os }}-pip-
+            ${{ runner.os }}-venv-
 
-      - name: Install dependencies && run seleniuum tests
+      - name: Install dependencies && run selenium tests
         working-directory: ./testing
         run: |
           python3 -m venv venv
@@ -91,4 +130,3 @@ jobs:
         run: |
           chmod +x api_health_check.sh
           ./api_health_check.sh
-      
