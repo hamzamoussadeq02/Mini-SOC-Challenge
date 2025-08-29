@@ -1,5 +1,6 @@
 name: Mini-SOC
 
+# Trigger pipeline on push or pull request to the main branch
 on:
   push:
     branches:
@@ -8,23 +9,25 @@ on:
 
 jobs:
   
+  # 1) Build Docker images job
   build-images:
-    runs-on: self-hosted
+    runs-on: self-hosted   # Runs on your self-hosted GitHub Actions runner
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4   # Pull the repository code
 
       - name: Build Docker images
         working-directory: ./docker
         run: |
-          docker compose build
+          docker compose build   # Build all Docker images defined in docker-compose
 
-
+  # 2) Run Trivy security scans on the built images
   trivy-scan:
     runs-on: self-hosted
-    needs: build-images
+    needs: build-images   # Only run after build-images completes
     strategy:
       matrix:
+        # Define all images that should be scanned
         image: 
           - wazuh/wazuh-manager:4.12.0
           - wazuh/wazuh-indexer:4.12.0
@@ -35,30 +38,33 @@ jobs:
         working-directory: ./testing/trivy-reports
         run: |
           IMAGE=${{ matrix.image }}
+          # Format image name into a safe filename (slashes and colons replaced)
           REPORT_FILE="$(echo $IMAGE | tr / _ | tr : _).txt"
           echo "🔍 Scanning $IMAGE"
+          # Run scan for HIGH and CRITICAL vulnerabilities (but don’t fail the job yet)
           trivy image --exit-code 0 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE
-          echo "artifactName=$REPORT_FILE" >> $GITHUB_ENV
+          echo "artifactName=$REPORT_FILE" >> $GITHUB_ENV   # Save report filename for later
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
+          # Upload the scan result as an artifact
           name: ${{ env.artifactName }}
           path: ./testing/trivy-reports/${{ env.artifactName }}
        
-
- 
+  # 3) Deploy stack and run tests 
   deploy-and-test:
     runs-on: self-hosted
-    needs: trivy-scan
+    needs: trivy-scan   # Runs only after trivy-scan completes
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4   
 
       - name: Fetch secrets from Vault
         uses: hashicorp/vault-action@v2.4.0
         with:
-          url: http://192.168.1.27:8200
-          token: ${{ secrets.VAULT_TOKEN }}
+          url: http://192.168.1.27:8200   # Vault server URL
+          token: ${{ secrets.VAULT_TOKEN }}   # Vault authentication token from GitHub secrets
           secrets: |
             secret/github-ci indexer_admin_password | INDEXER_ADMIN_PASSWORD ;
             secret/github-ci wazuh_api_password      | WAZUH_API_PASSWORD ;
@@ -66,6 +72,7 @@ jobs:
 
       - name: Render wazuh.yml from template
         run: |
+          # Use envsubst to replace variables in template with secrets
           envsubst < docker/config/wazuh_dashboard/wazuh.yml.template > docker/config/wazuh_dashboard/wazuh.yml
 
       - name: Generate indexer certificates
@@ -76,10 +83,11 @@ jobs:
       - name: Deploy Docker environment
         working-directory: ./docker
         run: |
-          docker compose up -d
+          docker compose up -d   # Start the full Wazuh stack
 
       - name: Wait for Wazuh Dashboard
         run: |
+          # Check repeatedly until dashboard responds correctly
           echo "⏳ Waiting for Wazuh Dashboard at https://localhost/"
           retries=30
           for i in $(seq 1 $retries); do
@@ -112,7 +120,7 @@ jobs:
       - name: Cache Python venv
         uses: actions/cache@v4
         with:
-          path: ./testing/venv
+          path: ./testing/venv   # Cache Python virtual environment
           key: ${{ runner.os }}-venv-${{ hashFiles('./testing/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-venv-
@@ -123,10 +131,10 @@ jobs:
           python3 -m venv venv
           source venv/bin/activate
           pip3 install -r requirements.txt
-          python3 dashboard_selenium_test.py
+          python3 dashboard_selenium_test.py   # Run Selenium browser automation tests
 
       - name: Run Wazuh API healthcheck
         working-directory: ./testing
         run: |
           chmod +x api_health_check.sh
-          ./api_health_check.sh
+          ./api_health_check.sh   #  API health probe
