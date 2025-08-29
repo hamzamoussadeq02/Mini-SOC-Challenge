@@ -13,6 +13,7 @@ This repository is for showcasing the work done by Hamza Moussadeq for the Mini 
   - [Vault](#vault)
 - [Deploy Wazuh Locally](#deploy-wazuh-locally)
 - [Deploy via CI/CD](#deploy-via-cicd)
+- [Security & Secrets](#security-&-secrets)
 
 ## Architecture overview
 
@@ -388,4 +389,4 @@ trivy image --exit-code 0 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE # no f
 trivy image --exit-code 1 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE # fail on high/critical
 ```
 ## Security & Secrets
-In this project, no secrets are hardcoded in the repository or in plain YAML files. All sensitive information, including Wazuh credentials, API keys, and TLS private keys, is securely stored and managed via HashiCorp Vault on a separate Ubuntu VM. The GitHub Actions workflow retrieves secrets dynamically from Vault at runtime, ensuring that sensitive data is never exposed in the CI/CD pipeline or in Docker configuration files.
+In this project, no secrets are hardcoded in the repository or in plain YAML files. All sensitive information, including Wazuh credentials, and API keys, is securely stored and managed via HashiCorp Vault on a separate Ubuntu VM. The GitHub Actions workflow retrieves secrets dynamically from Vault at runtime, ensuring that sensitive data is never exposed in the CI/CD pipeline or in Docker configuration files.
