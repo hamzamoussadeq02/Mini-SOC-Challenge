@@ -70,7 +70,6 @@ The project's repository is structured as follows:
 
 ```
 
-The workflow is as follows :
 ## Prerequisites
 - A self-hosted runner that the CI/CD pipeline runs on, in order to run the pipeline and the Wazuh stack comfortably, it is recommended to have at least 6gb of ram. Wazuh indexer also creates many memory-mapped areas. So you need to set the kernel to give a process at least 262,144 memory-mapped areas.
 1. Increase max_map_count on your Docker host:
@@ -388,3 +387,5 @@ Upon reading the pipeline, it is clear that even though the trivy scan finds hig
 trivy image --exit-code 0 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE # no fail
 trivy image --exit-code 1 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE # fail on high/critical
 ```
+## Security & Secrets
+In this project, no secrets are hardcoded in the repository or in plain YAML files. All sensitive information, including Wazuh credentials, API keys, and TLS private keys, is securely stored and managed via HashiCorp Vault on a separate Ubuntu VM. The GitHub Actions workflow retrieves secrets dynamically from Vault at runtime, ensuring that sensitive data is never exposed in the CI/CD pipeline or in Docker configuration files.
