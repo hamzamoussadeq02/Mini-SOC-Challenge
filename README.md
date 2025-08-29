@@ -16,7 +16,7 @@ This repository is for showcasing the work done by Hamza Moussadeq for the Mini 
 - [Deploy via CI/CD](#deploy-via-cicd)
 - [Notes on Trivy Exit Codes](#notes-on-trivy-exit-codes)
 
-## 1. Architecture overview
+## Architecture overview
 
 This project implements a DevSecOps pipeline that automates the secure deployment of the Wazuh SIEM stack using GitHub Actions, Docker Compose, Nginx, Trivy, Selenium with chrome driver and HashiCorp Vault.
 
