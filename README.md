@@ -12,8 +12,8 @@ This repository is for showcasing the work done by Hamza Moussadeq for the Mini 
   - [Chrome/Selenium](#chromeselenium)
   - [Vault](#vault)
 - [Deploy Wazuh Locally](#deploy-wazuh-locally)
-- [Deploy via CI/CD](#deploy-via-cicd)
-- [Security & Secrets](#security-&-secrets)
+- [Deploy via CI/CD](#deploy-via-ci/cd)
+- [Security and Secrets](#security-and-secrets)
 
 ## Architecture overview
 
@@ -237,7 +237,7 @@ This might not work first because the kv engine might not be enabled yet, in ord
 vault secrets enable -path=secret kv
 ```
 To access the vault UI, in your browser type `http://127.0.0.1:8200` (if locally) or with the host IP address (if externally)
-## Deploy Wazuh locally
+## Deploy Wazuh Locally
 To deploy Wazuh with docker compose, the official Wazuh website offers a ready docker-compose.yml file that we can use 
 1. Clone the Wazuh repository to your system:
 ```bash
@@ -388,5 +388,5 @@ Upon reading the pipeline, it is clear that even though the trivy scan finds hig
 trivy image --exit-code 0 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE # no fail
 trivy image --exit-code 1 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE # fail on high/critical
 ```
-## Security & Secrets
+## Security and Secrets
 In this project, no secrets are hardcoded in the repository or in plain YAML files. All sensitive information, including Wazuh credentials, and API keys, is securely stored and managed via HashiCorp Vault on a separate Ubuntu VM. The GitHub Actions workflow retrieves secrets dynamically from Vault at runtime, ensuring that sensitive data is never exposed in the CI/CD pipeline or in Docker configuration files.
