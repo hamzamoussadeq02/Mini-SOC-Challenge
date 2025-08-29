@@ -333,7 +333,7 @@ To avoid conflicts and allow Nginx to exclusively use port 443, update the Wazuh
 docker compose up -d
 ```
 7. The wazuh dashboard will be accessible via `https://<HOST-IP>`. If not changed, the default username and password for the Wazuh dashboard are `admin` and `SecretPassword`
-## Wazuh deployment via CI/CD
+## Deploy via CI/CD
 To deploy Wazuh securely to docker, a github actions workflow has been implemented (see .github/workflows/test.yml). This is what it does:
 ```bash
                           +----------------------------------+
