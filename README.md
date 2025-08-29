@@ -4,7 +4,6 @@
 This repository is for showcasing the work done by Hamza Moussadeq for the Mini SOC challenge as part of the Cires Technologies interview process for the role of SOC Architect / DevOps Engineer.
 ## Table of Contents
 - [Architecture Overview](#architecture-overview)
-- [Repository Structure](#repository-structure)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
   - [Docker](#docker)
@@ -14,7 +13,6 @@ This repository is for showcasing the work done by Hamza Moussadeq for the Mini 
   - [Vault](#vault)
 - [Deploy Wazuh Locally](#deploy-wazuh-locally)
 - [Deploy via CI/CD](#deploy-via-cicd)
-- [Notes on Trivy Exit Codes](#notes-on-trivy-exit-codes)
 
 ## Architecture overview
 
@@ -384,7 +382,8 @@ To deploy Wazuh securely to docker, a github actions workflow has been implement
 
 ```
 For more details on each step of the pipeline refer to the workflow file.
-Upon reading the pipeline, it is clear that even though the trivy scan find high/critical vulnerablities the pipeline will not fail and that is because it will always find them and that will cause the pipeline to never pass. To make it fail simply change the exit code from 0 to 1 like this:
+
+Upon reading the pipeline, it is clear that even though the trivy scan finds high/critical vulnerablities the pipeline will not fail and that is because it will always find them and that will cause the pipeline to never pass. To make it fail simply change the exit code from 0 to 1 like this:
 ```bash
 trivy image --exit-code 0 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE # no fail
 trivy image --exit-code 1 --severity HIGH,CRITICAL -o $REPORT_FILE $IMAGE # fail on high/critical
